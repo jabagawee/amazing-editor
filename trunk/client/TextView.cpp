@@ -1,4 +1,5 @@
 #include "TextView.h"
+#include <iostream>
 
 gboolean TextView::Expose(){
 	if(context == NULL){
@@ -11,7 +12,10 @@ gboolean TextView::Configure(){
 	return TRUE;
 }
 
+using namespace std;
 gboolean TextView::ButtonPress(GdkEventButton *event){
+	// code to handle the button press
+	cout << event << endl;
 	return TRUE;
 }
 
