@@ -33,6 +33,7 @@ void FontContext::DrawPoints(GdkPoint *points,int length){
 }
 void FontContext::TestDraw(){
 	DrawBoldCode('a',0,0);
+	DrawBoldCode('b',10,10);
 }
 gboolean FontContext::DrawBoldCode(int code,int x_loc,int y_loc){
 	if((code >= 32) && (code < 127)){

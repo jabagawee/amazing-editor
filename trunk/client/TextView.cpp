@@ -1,11 +1,12 @@
 #include "TextView.h"
 
 gboolean TextView::Expose(){
-	context = new FontContext(GDK_DRAWABLE(text_area->window));
 	context->TestDraw();
 }
 gboolean TextView::Configure(){
-
+	if(context == NULL){
+		context = new FontContext(GDK_DRAWABLE(text_area->window));
+	}
 	return TRUE;
 }
 
@@ -20,8 +21,9 @@ TextView::TextView(){
 			                  GDK_BUTTON_RELEASE_MASK |
 					  GDK_KEY_PRESS_MASK |
 					  GDK_KEY_RELEASE_MASK);
-	g_signal_connect(text_area, "configure-event", G_CALLBACK(ConfigureStatic), this);
-        g_signal_connect(text_area, "expose-event", G_CALLBACK(ExposeStatic), this);
+	//g_signal_connect(text_area, "configure-event", G_CALLBACK(ConfigureStatic), this);
+        //g_signal_connect(text_area, "expose-event", G_CALLBACK(ExposeStatic), this);
+	context = NULL;
 	gtk_widget_show(text_area);
 }
 
