@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 
 import gtk
 import gtk.glade
@@ -60,15 +60,15 @@ class Ask(object):
         tree.get_widget("dialog_save").connect("activate", self.on_save)
         self.window.show()
     def on_close(self, widget):
-        print "A"
+        print 'A'
         self.calc.handle_ask(False)
         self.window.destroy()
     def on_save(self, widget):
-        print "B"
+        print 'B'
         self.calc.handle_ask(True)
         self.window.destroy()
     def on_cancel(self, widget):
-        print "C"
+        print 'C'
         self.window.destroy()
     def destroy(self, widget):
         self.calc.asking = False
@@ -81,10 +81,10 @@ old_text = pad.text
 diffy_matchy_patchy = diff_match_patch()
 
 def communicate_with_server(*args):
-    nonlocal 
+    global old_text
     patches = diffy_matchy_patchy.patch_make(old_text, pad.text)
     old_text = pad.text
-    print patch_toText(patches)
+    print diffy_matchy_patchy(patch_toText(patches))
     return True
 
 gtk.timeout_add(1000, communicate_with_server) # every second
