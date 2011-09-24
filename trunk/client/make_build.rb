@@ -1,3 +1,5 @@
+#! /usr/bin/env ruby
+
 $LIBS = ["-lm"]
 $IFlags = []
 $CFLAGS = []
