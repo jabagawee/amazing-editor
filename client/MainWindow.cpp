@@ -14,7 +14,7 @@ MainWindow::MainWindow(){
 	vbox = gtk_vbox_new(FALSE,0);
     	gtk_widget_show (vbox);	
    	gtk_container_add (GTK_CONTAINER (window), vbox);
-
+	view = new TextView();
 
 	GtkWidget *menu_bar = gtk_menu_bar_new();
     	gtk_widget_show (menu_bar);
@@ -40,7 +40,9 @@ MainWindow::MainWindow(){
 
 	gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
 
+	gtk_box_pack_start(GTK_BOX(vbox), view->text_area,TRUE,TRUE,0);
 
 	gtk_widget_set_size_request(window,600,400);
     	gtk_widget_show (window);
+    	//	g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_widget_destroy), window);
 }
