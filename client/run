@@ -1,5 +1,4 @@
 #! /bin/sh
 
 ./make_build.rb
-make
-./editor
+make && ./editor

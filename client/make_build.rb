@@ -14,6 +14,7 @@ end
 
 
 $src_files=Dir.glob("*.c") + Dir.glob("*.cpp") 
+$src_files += Dir.glob("*/*.c") + Dir.glob("*/*.cpp") 
 $obj_files=$src_files.collect { |file|
 	file.gsub(/\.\w*$/,"") + ".o"
 }
