@@ -1517,7 +1517,12 @@ class diff_match_patch:
       patchCopy.length2 = patch.length2
       patchesCopy.append(patchCopy)
     return patchesCopy
-
+  
+  def patch_inverse(self,patches):
+    copy = self.patch_deepCopy(patches)
+    for patch in patches:
+        patch.invert()
+    return copy
   def patch_apply(self, patches, text):
     """Merge a set of patches onto the text.  Return a patched text, as well
     as a list of true/false values indicating which patches were applied.
@@ -1855,6 +1860,17 @@ class patch_obj:
     self.start2 = None
     self.length1 = 0
     self.length2 = 0
+
+
+  def invert(self):
+    new_diffs = []
+    for op,data in self.diffs:
+      if(op == diff_match_patch.DIFF_INSERT):
+        op = diff_match_patch.DIFF_DELETE
+      elif(op == diff_match_patch.DIFF_DELETE):
+        op = diff_match_patch.DIFF_INSERT
+        new_diffs.append((op,data))
+    self.diffs = new_diffs
 
   def __str__(self):
     """Emmulate GNU diff's format.
