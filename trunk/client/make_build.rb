@@ -16,7 +16,7 @@ $obj_files=$src_files.collect { |file|
 	file.gsub(/\.\w*$/,"") + ".o"
 }
 
-["gtk+-2.0","gtkglext-1.0","gdk-2.0"].each do |package_id|
+["gtk+-2.0","gdk-2.0"].each do |package_id|
         pkg_config(package_id) or exit 1
 end
 
