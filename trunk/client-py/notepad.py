@@ -27,6 +27,9 @@ msg = b('a') + n2b(len(user)) + b(user) + n2b(len(password)) + b(password)
 s.send(msg)
 print s.recv(1024)
 
+msg = b('q') + n2b(0)
+s.send(msg)
+files = s.recv(1024)[5:].split(';')
 
 tree = gtk.glade.XML("notepad.glade")
 
@@ -148,6 +151,6 @@ def communicate_with_server(*args):
     return False
 
 
-gtk.timeout_add(500, communicate_with_server) # every second
+gtk.timeout_add(50, communicate_with_server) # every second
 
 gtk.main()
