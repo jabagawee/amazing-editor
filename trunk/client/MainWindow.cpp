@@ -16,27 +16,33 @@ MainWindow::MainWindow(){
    	gtk_container_add (GTK_CONTAINER (window), vbox);
 	view = new TextView();
 
+	interface = new KeyboardInterface();
+
 	GtkWidget *menu_bar = gtk_menu_bar_new();
     	gtk_widget_show (menu_bar);
 
-    	GtkWidget *file_item = gtk_menu_item_new_with_label ("File");
+    	GtkWidget *file_item = gtk_menu_item_new_with_mnemonic ("_File");
     	gtk_widget_show (file_item);
 	gtk_menu_bar_append (GTK_MENU_BAR (menu_bar), file_item);
 
 	GtkWidget *file_menu = gtk_menu_new();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (file_item), file_menu);
 
-    	GtkWidget *open_item = gtk_menu_item_new_with_label ("Open");
+    	GtkWidget *new_item = gtk_menu_item_new_with_mnemonic ("_New");
+    	gtk_menu_append (GTK_MENU (file_menu), new_item);
+    	gtk_widget_show (new_item);
+
+    	GtkWidget *open_item = gtk_menu_item_new_with_mnemonic ("_Open");
     	gtk_menu_append (GTK_MENU (file_menu), open_item);
     	gtk_widget_show (open_item);
 
-    	GtkWidget *save_item = gtk_menu_item_new_with_label ("Save");
+    	GtkWidget *save_item = gtk_menu_item_new_with_mnemonic ("_Save");
     	gtk_menu_append (GTK_MENU (file_menu), save_item);
     	gtk_widget_show (save_item);
 
-    	GtkWidget *quit_item = gtk_menu_item_new_with_label ("Quit");
-    	gtk_menu_append (GTK_MENU (file_menu), quit_item);
-    	gtk_widget_show (quit_item);
+    	GtkWidget *exit_item = gtk_menu_item_new_with_mnemonic ("_Exit");
+    	gtk_menu_append (GTK_MENU (file_menu), exit_item);
+    	gtk_widget_show (exit_item);
 
 	gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 0);
 
