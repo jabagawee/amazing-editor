@@ -10,6 +10,8 @@ import socket
 from random import randint
 
 def n2b(n):
+    if(n < 0):
+        return bytearray((255,255,255,255))
     return bytearray((n / 2 ** 24, n % 2 ** 24 / 2 ** 16, n % 2 ** 16 / 2 ** 8, n % 2 ** 8))
 b = bytearray
 
@@ -78,9 +80,9 @@ class Notepad(object):
         print 'delete'
         if self.dirty:
             if not self.asking:
-                Ask(self)
+                #Ask(self)
                 self.asking = True
-            return True
+            return False
         return False
     
     def on_destroy(self, widget):
@@ -114,7 +116,7 @@ class Ask(object):
 pad = Notepad()
 
 filename = 'test1.txt'
-ver_num = 13
+ver_num = -1
 
 msg = b('r') + n2b(len(filename)) + b(filename) + n2b(ver_num)
 s.send(msg)
