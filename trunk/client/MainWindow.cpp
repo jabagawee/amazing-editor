@@ -16,8 +16,6 @@ MainWindow::MainWindow(){
    	gtk_container_add (GTK_CONTAINER (window), vbox);
 	view = new TextView();
 
-	interface = new KeyboardInterface();
-
 	GtkWidget *menu_bar = gtk_menu_bar_new();
     	gtk_widget_show (menu_bar);
 

@@ -3,6 +3,7 @@
 gboolean TextView::Expose(){
 	context->TestDraw();
 }
+
 gboolean TextView::Configure(){
 	if(context == NULL){
 		context = new FontContext(GDK_DRAWABLE(text_area->window));
@@ -10,6 +11,9 @@ gboolean TextView::Configure(){
 	return TRUE;
 }
 
+gboolean TextView::ButtonPress(GdkEventButton *event){
+	return TRUE;
+}
 
 
 TextView::TextView(){
@@ -23,9 +27,7 @@ TextView::TextView(){
 					  GDK_KEY_RELEASE_MASK);
 	//g_signal_connect(text_area, "configure-event", G_CALLBACK(ConfigureStatic), this);
         //g_signal_connect(text_area, "expose-event", G_CALLBACK(ExposeStatic), this);
+	g_signal_connect (text_area, "key-press-event", G_CALLBACK(ButtonPressStatic), this);
 	context = NULL;
 	gtk_widget_show(text_area);
 }
-
-
-
