@@ -180,5 +180,8 @@ def handle_data(source, condition):
 gobject.io_add_watch(s, gobject.IO_IN, handle_data)
 
 gtk.timeout_add(50, communicate_with_server) # every second
-
-gtk.main()
+try:
+    gtk.main()
+except:
+    msg = b('l') + n2b(0)
+    s.send(msg)
