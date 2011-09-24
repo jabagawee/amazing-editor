@@ -2,6 +2,7 @@
 
 import gtk
 import gtk.glade
+from gtkcodebuffer import CodeBuffer, SyntaxLoader
 from diff_match_patch import diff_match_patch
 import sys
 import socket
@@ -16,6 +17,9 @@ port = 19999
 user = 'user' + str(randint(1, 1000))
 password = 'cookies'
 
+lang = SyntaxLoader('python')
+buff = CodeBuffer(lang=lang)
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((server, int(port)))
 
@@ -29,6 +33,7 @@ tree = gtk.glade.XML("notepad.glade")
 class Notepad(object):
     def __init__(self):
         self.window = tree.get_widget("mainwindow")
+        tree.get_widget("text").set_buffer(buff)
         self.text = tree.get_widget('text').get_buffer()
         
         self.window.connect("delete_event", self.on_delete)
@@ -80,15 +85,12 @@ class Ask(object):
         tree.get_widget("dialog_save").connect("activate", self.on_save)
         self.window.show()
     def on_close(self, widget):
-        print 'A'
         self.calc.handle_ask(False)
         self.window.destroy()
     def on_save(self, widget):
-        print 'B'
         self.calc.handle_ask(True)
         self.window.destroy()
     def on_cancel(self, widget):
-        print 'C'
         self.window.destroy()
     def destroy(self, widget):
         self.calc.asking = False
@@ -104,7 +106,7 @@ pad.text.set_text(s.recv(102400)[5:])
 
 msg = b('e') + n2b(len(filename)) + b(filename) + n2b(ver_num) 
 s.send(msg)
-s.recv(1024)
+pad.text.set_text(s.recv(102400)[5:])
 
 def get_goddamn_text():
     return pad.text.get_text(pad.text.get_start_iter(), pad.text.get_end_iter())
@@ -119,7 +121,6 @@ def communicate_with_server(*args):
     global old_text
     new_text = get_goddamn_text()
     patches = diffy_matchy_patchy.patch_make(old_text, new_text)
-    old_text = get_goddamn_text()
     patch_text = diffy_matchy_patchy.patch_toText(patches)
     print patch_text
 
@@ -138,10 +139,15 @@ def communicate_with_server(*args):
         patches = diffy_matchy_patchy.patch_fromText(response[5:])
         pad.text.set_text(diffy_matchy_patchy.patch_apply(patches, get_goddamn_text())[0])
 
+    old_text = get_goddamn_text()
+
     # done
     return True
 
+    # should never run
+    return False
 
-gtk.timeout_add(1000, communicate_with_server) # every second
+
+gtk.timeout_add(500, communicate_with_server) # every second
 
 gtk.main()
