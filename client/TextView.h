@@ -7,6 +7,7 @@ class TextView{
 	public:
 		TextView();
 		GtkWidget *text_area;
+		GtkTextBuffer *buffer;
 	private:
 #define STATIC_FORWARD(name) \
 		inline static gboolean name ## Static(GtkWidget *widget, GdkEvent *event, gpointer self){return ((TextView *)self)->name();} \
