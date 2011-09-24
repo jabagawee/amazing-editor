@@ -4,6 +4,7 @@ import gtk
 import gtk.glade
 from gtkcodebuffer import CodeBuffer, SyntaxLoader
 from diff_match_patch import diff_match_patch
+import gobject
 import sys
 import socket
 from random import randint
@@ -11,6 +12,17 @@ from random import randint
 def n2b(n):
     return bytearray((n / 2 ** 24, n % 2 ** 24 / 2 ** 16, n % 2 ** 16 / 2 ** 8, n % 2 ** 8))
 b = bytearray
+
+def b2n(b):
+    """
+    >>> b2n(n2b(1))
+    1
+    """
+    n = 0
+    for i in bytearray(b):
+        n * (2 ** 8)
+        n += i
+    return n
 
 server = '10.10.65.150'
 port = 19999
@@ -90,6 +102,7 @@ class Ask(object):
     def on_close(self, widget):
         self.calc.handle_ask(False)
         self.window.destroy()
+        gtk.main_quit()
     def on_save(self, widget):
         self.calc.handle_ask(True)
         self.window.destroy()
@@ -125,31 +138,44 @@ def communicate_with_server(*args):
     new_text = get_goddamn_text()
     patches = diffy_matchy_patchy.patch_make(old_text, new_text)
     patch_text = diffy_matchy_patchy.patch_toText(patches)
-    print patch_text
+    #print patch_text
 
     # send to server
-    msg = b('d') + n2b(len(patch_text)) + b(patch_text)
-    s.send(msg)
-    s.recv(1024)
+    if(len(patch_text) > 0):
+        msg = b('d') + n2b(len(patch_text)) + b(patch_text)
+        print(len(patch_text))
+        s.send(msg)
+        s.recv(1024)
 
     # receive new shit
-    msg = b('g') + n2b(0)
-    s.send(msg)
-    response = s.recv(1024)
+    #msg = b('g') + n2b(0)
+    #s.send(msg)
 
     # apply patches to server
-    if response[0] == 'd':
-        patches = diffy_matchy_patchy.patch_fromText(response[5:])
-        pad.text.set_text(diffy_matchy_patchy.patch_apply(patches, get_goddamn_text())[0])
+
 
     old_text = get_goddamn_text()
-
     # done
     return True
 
     # should never run
     return False
 
+def handle_data(source, condition):
+    global old_text
+    response = source.recv(1024)
+    print("message_recieved")
+    if len(response) > 0:
+        if response[0] == 'd':
+            print(b2n(response[1:5]) , len(response[5:]))
+            patches = diffy_matchy_patchy.patch_fromText(response[5:])
+            pad.text.set_text(diffy_matchy_patchy.patch_apply(patches, get_goddamn_text())[0])
+            old_text = get_goddamn_text()
+        return True
+    else:
+        return False
+
+gobject.io_add_watch(s, gobject.IO_IN, handle_data)
 
 gtk.timeout_add(50, communicate_with_server) # every second
 
