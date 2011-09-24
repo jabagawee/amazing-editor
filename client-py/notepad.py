@@ -8,6 +8,7 @@ import gobject
 import sys
 import socket
 from random import randint
+import connection
 
 def n2b(n):
     if(n < 0):
@@ -26,26 +27,22 @@ def b2n(b):
         n += i
     return n
 
+
 server = '10.10.65.150'
 port = 19999
+conn = connection.Connection(server,port)
 user = 'user' + str(randint(1, 1000))
 password = 'cookies'
+conn.auth(user,password)
+s = conn.sock
 
 lang = SyntaxLoader('python')
 buff = CodeBuffer(lang=lang)
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((server, int(port)))
 
-msg = b('a') + n2b(len(user)) + b(user) + n2b(len(password)) + b(password)
-s.send(msg)
-print s.recv(1024)
-
-msg = b('q') + n2b(0)
-s.send(msg)
-files = s.recv(1024)[5:].split(';')
-
+files = conn.get_files()
 tree = gtk.glade.XML("notepad.glade")
+
 
 class Notepad(object):
     def __init__(self):
@@ -118,70 +115,70 @@ pad = Notepad()
 filename = 'test1.txt'
 ver_num = -1
 
-msg = b('r') + n2b(len(filename)) + b(filename) + n2b(ver_num)
-s.send(msg)
-pad.text.set_text(s.recv(102400)[5:])
 
-msg = b('e') + n2b(len(filename)) + b(filename) + n2b(ver_num) 
-s.send(msg)
-pad.text.set_text(s.recv(102400)[5:])
+#msg = b('e') + n2b(len(filename)) + b(filename) + n2b(ver_num) 
+pad.text.set_text(conn.lock_to(filename,-1))
 
-def get_goddamn_text():
-    return pad.text.get_text(pad.text.get_start_iter(), pad.text.get_end_iter())
+import diffapply
+buff = diffapply.TextBuffer(pad.text)
+patch_logger = diffapply.PatchLogger(buff,conn)
+patch_logger.init_diffs(filename)
 
-old_text = get_goddamn_text()
-
-diffy_matchy_patchy = diff_match_patch()
-
-def communicate_with_server(*args):
-    '''Fuck you Stephen'''
-    # patch the old text
-    global old_text
-    new_text = get_goddamn_text()
-    patches = diffy_matchy_patchy.patch_make(old_text, new_text)
-    patch_text = diffy_matchy_patchy.patch_toText(patches)
-    #print patch_text
-
-    # send to server
-    if(len(patch_text) > 0):
-        msg = b('d') + n2b(len(patch_text)) + b(patch_text)
-        print(len(patch_text))
-        s.send(msg)
-        s.recv(1024)
-
-    # receive new shit
-    #msg = b('g') + n2b(0)
-    #s.send(msg)
-
-    # apply patches to server
-
-
-    old_text = get_goddamn_text()
-    # done
-    return True
-
-    # should never run
-    return False
+class Scrubber(object):
+    def __init__(self):
+        self.scrub_bar = tree.get_widget("scrub_bar")
+        self.adj = self.scrub_bar.get_adjustment()
+        self.adj.lower = 0
+        self.adj.upper = 1
+        self.adj.step_increment = 1
+        self.adj.page_size = 1
+        self.old_value = self.adj.value = self.adj.upper - 1
+        self.scrub_bar.set_update_policy(gtk.UPDATE_CONTINUOUS)
+        self.scrub_bar.connect("value_changed", self.scrub)
+        patch_logger.add_scrub_bar(self)
+        #tree.get_widget("scrub_start").connect("activate", self.scrub_start)
+        #tree.get_widget("scrub_end").connect("activate", self.scrub_end)
+    def scrub_start(self,*args):
+        while(patch_logger.move_forward()):
+            pass
+        self.scrub_bar.hide()
+    def scrub_end(self,*args):
+        self.scrub_bar.show()
+    def scrub(self,extra):
+        error = self.adj.value % 1.0
+        if(error > 0.001 and error < 0.999):
+            new_value = self.adj.value = int(self.adj.value + 0.5)
+            self.scrub_to(new_value)
+    def scrub_to(self,new_value):
+        while(patch_logger.patch_index != new_value):
+            if(new_value > patch_logger.patch_index):
+                patch_logger.move_forward()
+            elif(new_value < patch_logger.patch_index):
+                patch_logger.move_backward()
+    def set_scrub_length(self,length):
+        self.adj.upper = length + 1
+    def set_scrub_index(self,patch_index):
+        self.adj.value = patch_index
+Scrubber()
 
 def handle_data(source, condition):
-    global old_text
+    print("got update")
     response = source.recv(1024)
-    print("message_recieved")
     if len(response) > 0:
         if response[0] == 'd':
             print(b2n(response[1:5]) , len(response[5:]))
-            patches = diffy_matchy_patchy.patch_fromText(response[5:])
-            pad.text.set_text(diffy_matchy_patchy.patch_apply(patches, get_goddamn_text())[0])
-            old_text = get_goddamn_text()
+            patch_text = response[5:]
+            patch_logger.server_recieve(patch_text)
         return True
     else:
         return False
 
-gobject.io_add_watch(s, gobject.IO_IN, handle_data)
+gobject.io_add_watch(conn.sock, gobject.IO_IN, handle_data)
 
-gtk.timeout_add(50, communicate_with_server) # every second
+gobject.timeout_add(50, patch_logger.check_send_patch) # every second
 try:
     gtk.main()
 except:
-    msg = b('l') + n2b(0)
-    s.send(msg)
+    pass
+print("logout")
+conn.logout()

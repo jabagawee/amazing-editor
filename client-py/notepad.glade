@@ -140,8 +140,46 @@
                 </child>
               </widget>
             </child>
+            <child>
+              <widget class="GtkMenuItem" id="menuitem5">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Scrub</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="menu8">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkMenuItem" id="scrub_start">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Start</property>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+                <child>
+                  <widget class="GtkMenu" id="menu239">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkMenuItem" id="scrub_end">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">End</property>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
           </widget>
           <packing>
+            <property name="expand">False</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkHScrollbar" id="scrub_bar">
+            <property name="visible">True</property>
+          </widget>
+          <packing>
+            <property name="position">1</property>
             <property name="expand">False</property>
           </packing>
         </child>
@@ -159,7 +197,7 @@
             </child>
           </widget>
           <packing>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
       </widget>
